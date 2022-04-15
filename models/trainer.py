@@ -33,6 +33,9 @@ class CDTrainer():
         self.device = torch.device("cuda:%s" % args.gpu_ids[0] if torch.cuda.is_available() and len(args.gpu_ids)>0
                                    else "cpu")
         print(self.device)
+        
+        trainable_params = sum(param.numel() for param in self.net_G.parameters() if param.requires_grad)
+        print(f'Trainable params: {trainable_params}')
 
         # Learning rate and Beta1 for Adam optimizers
         self.lr = args.lr
