@@ -7,11 +7,11 @@ import data_config
 from datasets.CD_dataset import CDDataset
 
 
-def get_loader(data_name, img_size=256, batch_size=8, split='test',
+def get_loader(data_name, dataset_root, img_size=256, batch_size=8, split='test',
                is_train=False, dataset='CDDataset'):
     dataConfig = data_config.DataConfig().get_data_config(data_name)
-    root_dir = dataConfig.root_dir
-    label_transform = dataConfig.label_transform
+    root_dir = dataset_root#dataConfig.root_dir
+    label_transform = 'norm'#dataConfig.label_transform
 
     if dataset == 'CDDataset':
         data_set = CDDataset(root_dir=root_dir, split=split,
@@ -32,9 +32,9 @@ def get_loader(data_name, img_size=256, batch_size=8, split='test',
 def get_loaders(args):
 
     data_name = args.data_name
-    dataConfig = data_config.DataConfig().get_data_config(data_name)
-    root_dir = dataConfig.root_dir
-    label_transform = dataConfig.label_transform
+    #dataConfig = data_config.DataConfig().get_data_config(data_name)
+    root_dir = args.dataset_root#dataConfig.root_dir
+    label_transform = 'norm'#dataConfig.label_transform
     split = args.split
     split_val = 'val'
     if hasattr(args, 'split_val'):

@@ -29,6 +29,7 @@ def get_args():
     # data
     parser.add_argument('--num_workers', default=0, type=int)
     parser.add_argument('--dataset', default='CDDataset', type=str)
+    parser.add_argument('--dataset_root', default='datasets', type=str)
     parser.add_argument('--data_name', default='quick_start_LEVIR', type=str)
 
     parser.add_argument('--batch_size', default=1, type=int)
@@ -59,7 +60,7 @@ if __name__ == '__main__':
 
     log_path = os.path.join(args.output_folder, 'log_vis.txt')
 
-    data_loader = utils.get_loader(args.data_name, img_size=args.img_size,
+    data_loader = utils.get_loader(args.data_name, args.dataset_root, img_size=args.img_size,
                                    batch_size=args.batch_size,
                                    split=args.split, is_train=False)
 

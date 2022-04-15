@@ -3,6 +3,7 @@ class DataConfig:
     data_name = ""
     root_dir = ""
     label_transform = ""
+    
     def get_data_config(self, data_name):
         self.data_name = data_name
         if data_name == 'LEVIR':
