@@ -1,0 +1,4 @@
+*.pyc
+*.DS_Store
+*.pt
+datasets/LEVIR_CD256
