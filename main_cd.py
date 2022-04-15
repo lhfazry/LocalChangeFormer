@@ -17,7 +17,7 @@ def train(args):
 
 def test(args):
     from models.evaluator import CDEvaluator
-    dataloader = utils.get_loader(args.data_name, img_size=args.img_size,
+    dataloader = utils.get_loader(args.data_name, args.dataset_root, img_size=args.img_size,
                                   batch_size=args.batch_size, is_train=False,
                                   split='test')
     model = CDEvaluator(args=args, dataloader=dataloader)
@@ -38,6 +38,7 @@ if __name__ == '__main__':
     # data
     parser.add_argument('--num_workers', default=2, type=int)
     parser.add_argument('--dataset', default='CDDataset', type=str)
+    parser.add_argument('--dataset_root', default='datasets', type=str)
     parser.add_argument('--data_name', default='LEVIR', type=str)
 
     parser.add_argument('--batch_size', default=8, type=int)
