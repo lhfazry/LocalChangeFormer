@@ -1890,7 +1890,7 @@ class LocalChangeFormer(nn.Module):
     def __init__(self, input_nc=3, output_nc=2, decoder_softmax=False, embed_dim=256):
         super(LocalChangeFormer, self).__init__()
         #Transformer Encoder
-        self.embed_dims = [32, 32, 32, 32]
+        self.embed_dims = [32, 64, 128, 256]
         self.depths     = [1, 1, 1, 1] #[3, 3, 6, 18, 3]
         self.embedding_dim = embed_dim
         self.drop_rate = 0.1
