@@ -2017,7 +2017,7 @@ class DecoderTransformer_v4(nn.Module):
         """
 
         self.linear_fuse = nn.Sequential(
-            nn.Conv2d(   in_channels=self.embedding_dim, out_channels=self.embedding_dim * 2,
+            nn.Conv2d(   in_channels=self.embedding_dim*2, out_channels=self.embedding_dim,
                                         kernel_size=1),
             nn.BatchNorm2d(self.embedding_dim)
         )
