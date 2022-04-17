@@ -350,7 +350,7 @@ class CDTrainer():
 
             ################## Eval ##################
             ##########################################
-            self.logger.write('Begin evaluation...\n')
+            self.logger.write('Begin evaluation...\n')  
             self._clear_cache()
             self.is_training = False
             self.net_G.eval()
