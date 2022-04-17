@@ -1890,17 +1890,17 @@ class LocalChangeFormer(nn.Module):
     def __init__(self, input_nc=3, output_nc=2, decoder_softmax=False, embed_dim=256):
         super(LocalChangeFormer, self).__init__()
         #Transformer Encoder
-        self.embed_dims = [64, 128, 320, 512]
-        self.depths     = [2, 2, 2, 2] #[3, 3, 6, 18, 3]
+        self.embed_dims = [32, 32, 32, 32]
+        self.depths     = [1, 1, 1, 1] #[3, 3, 6, 18, 3]
         self.embedding_dim = embed_dim
         self.drop_rate = 0.1
         self.attn_drop = 0.1
         self.drop_path_rate = 0.1 
 
         self.Tenc_x2    = EncoderTransformer_v4(img_size=256, patch_size = 7, in_chans=input_nc, num_classes=output_nc, embed_dims=self.embed_dims,
-                 num_heads = [1, 1, 1, 1], mlp_ratios=[4, 4, 4, 4], qkv_bias=True, qk_scale=None, drop_rate=self.drop_rate,
+                 num_heads = [1, 1, 1, 1], mlp_ratios=[1, 1, 1, 1], qkv_bias=True, qk_scale=None, drop_rate=self.drop_rate,
                  attn_drop_rate = self.attn_drop, drop_path_rate=self.drop_path_rate, norm_layer=partial(nn.LayerNorm, eps=1e-6),
-                 depths=self.depths, sr_ratios=[8, 4, 2, 1])
+                 depths=self.depths, sr_ratios=[2, 2, 2, 1])
         
         #Transformer Decoder
         self.TDec_x2   = DecoderTransformer_v3(input_transform='multiple_select', in_index=[0, 1, 2, 3], align_corners=False, 
