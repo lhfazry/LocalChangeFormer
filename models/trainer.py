@@ -285,6 +285,7 @@ class CDTrainer():
         img_in1 = batch['A'].to(self.device)
         img_in2 = batch['B'].to(self.device)
         self.G_pred = self.net_G(img_in1, img_in2)
+        print(self.G_pred.size())
 
         if self.multi_scale_infer == "True":
             self.G_final_pred = torch.zeros(self.G_pred[-1].size()).to(self.device)
