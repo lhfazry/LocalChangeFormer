@@ -1666,9 +1666,9 @@ class EncoderTransformer_v5(nn.Module):
         # patch embedding definitions
         self.patch_embed1 = OverlapPatchEmbed(img_size=img_size, patch_size=patch_size, stride=4, in_chans=in_chans,
                                               embed_dim=embed_dims[0])
-        """
         self.patch_embed2 = OverlapPatchEmbed(img_size=img_size // 4, patch_size=patch_size, stride=2, in_chans=embed_dims[0],
                                               embed_dim=embed_dims[1])
+        """
         self.patch_embed3 = OverlapPatchEmbed(img_size=img_size // 8, patch_size=patch_size, stride=2, in_chans=embed_dims[1],
                                               embed_dim=embed_dims[2])
         self.patch_embed4 = OverlapPatchEmbed(img_size=img_size // 16, patch_size=patch_size, stride=2, in_chans=embed_dims[2],
@@ -1685,7 +1685,6 @@ class EncoderTransformer_v5(nn.Module):
             for i in range(depths[0])])
         self.norm1 = norm_layer(embed_dims[0])
         
-        """
         # Stage-2 (x1/8 scale)
         cur += depths[0]
         self.block2 = nn.ModuleList([LocalBlock(
@@ -1694,7 +1693,8 @@ class EncoderTransformer_v5(nn.Module):
             sr_ratio=sr_ratios[1])
             for i in range(depths[1])])
         self.norm2 = norm_layer(embed_dims[1])
-       
+
+        """
        # Stage-3 (x1/16 scale)
         cur += depths[1]
         self.block3 = nn.ModuleList([LocalBlock(
@@ -1741,6 +1741,7 @@ class EncoderTransformer_v5(nn.Module):
         for i in range(self.depths[1]):
             self.block2[i].drop_path.drop_prob = dpr[cur + i]
 
+        """
         cur += self.depths[1]
         for i in range(self.depths[2]):
             self.block3[i].drop_path.drop_prob = dpr[cur + i]
@@ -1748,6 +1749,7 @@ class EncoderTransformer_v5(nn.Module):
         cur += self.depths[2]
         for i in range(self.depths[3]):
             self.block4[i].drop_path.drop_prob = dpr[cur + i]
+        """
 
     def forward_features(self, x):
         B = x.shape[0]
@@ -1763,7 +1765,7 @@ class EncoderTransformer_v5(nn.Module):
         outs.append(x1)
         #print(f"Stage 1 shape: {x1.shape}")
 
-        """
+        
         #print("stage 2")
         # stage 2
         x1, H1, W1 = self.patch_embed2(x1)
@@ -1774,6 +1776,7 @@ class EncoderTransformer_v5(nn.Module):
         outs.append(x1)
         #print(f"Stage 2 shape: {x1.shape}")
 
+        """
         #print("stage 3")
         # stage 3
         x1, H1, W1 = self.patch_embed3(x1)
@@ -1989,19 +1992,19 @@ class DecoderTransformer_v4(nn.Module):
         #MLP decoder heads
         #self.linear_c4 = MLP(input_dim=c4_in_channels, embed_dim=self.embedding_dim)
         #self.linear_c3 = MLP(input_dim=c3_in_channels, embed_dim=self.embedding_dim)
-        #self.linear_c2 = MLP(input_dim=c2_in_channels, embed_dim=self.embedding_dim)
+        self.linear_c2 = MLP(input_dim=c2_in_channels, embed_dim=self.embedding_dim)
         self.linear_c1 = MLP(input_dim=c1_in_channels, embed_dim=self.embedding_dim)
 
         #convolutional Difference Modules
         #self.diff_c4   = conv_diff(in_channels=2*self.embedding_dim, out_channels=self.embedding_dim)
         #self.diff_c3   = conv_diff(in_channels=2*self.embedding_dim, out_channels=self.embedding_dim)
-        #self.diff_c2   = conv_diff(in_channels=2*self.embedding_dim, out_channels=self.embedding_dim)
+        self.diff_c2   = conv_diff(in_channels=2*self.embedding_dim, out_channels=self.embedding_dim)
         self.diff_c1   = conv_diff(in_channels=2*self.embedding_dim, out_channels=self.embedding_dim)
 
         #taking outputs from middle of the encoder
         #self.make_pred_c4 = make_prediction(in_channels=self.embedding_dim, out_channels=self.output_nc)
         #self.make_pred_c3 = make_prediction(in_channels=self.embedding_dim, out_channels=self.output_nc)
-        #self.make_pred_c2 = make_prediction(in_channels=self.embedding_dim, out_channels=self.output_nc)
+        self.make_pred_c2 = make_prediction(in_channels=self.embedding_dim, out_channels=self.output_nc)
         self.make_pred_c1 = make_prediction(in_channels=self.embedding_dim, out_channels=self.output_nc)
 
         """
@@ -2014,7 +2017,7 @@ class DecoderTransformer_v4(nn.Module):
         """
 
         self.linear_fuse = nn.Sequential(
-            nn.Conv2d(   in_channels=self.embedding_dim, out_channels=self.embedding_dim,
+            nn.Conv2d(   in_channels=self.embedding_dim, out_channels=self.embedding_dim * 2,
                                         kernel_size=1),
             nn.BatchNorm2d(self.embedding_dim)
         )
@@ -2063,15 +2066,15 @@ class DecoderTransformer_v4(nn.Module):
         #img1 and img2 features
         #c1_1, c2_1, c3_1, c4_1 = x_1
         #c1_2, c2_2, c3_2, c4_2 = x_2
-        c1_1, = x_1
-        c1_2, = x_2
+        c1_1, c2_1 = x_1
+        c1_2, c2_2 = x_2
 
         #print(f"c1_1: {c1_1.shape}, c2_1: {c2_1.shape}, c3_1: {c3_1.shape}, c4_1: {c4_1.shape}")
         #print(f"c1_2: {c1_2.shape}, c2_2: {c2_2.shape}, c3_2: {c3_2.shape}, c4_2: {c4_2.shape}")
 
         ############## MLP decoder on C1-C4 ###########
         #n, _, h, w = c4_1.shape
-        n, _, h, w = c1_1.shape
+        n, _, h, w = c2_1.shape
 
         outputs = []
 
@@ -2091,26 +2094,27 @@ class DecoderTransformer_v4(nn.Module):
         p_c3  = self.make_pred_c3(_c3)
         outputs.append(p_c3)
         _c3_up= resize(_c3, size=c1_2.size()[2:], mode='bilinear', align_corners=False)
+        """
 
         # Stage 2: x1/8 scale
         _c2_1 = self.linear_c2(c2_1).permute(0,2,1).reshape(n, -1, c2_1.shape[2], c2_1.shape[3])
         _c2_2 = self.linear_c2(c2_2).permute(0,2,1).reshape(n, -1, c2_2.shape[2], c2_2.shape[3])
-        _c2   = self.diff_c2(torch.cat((_c2_1, _c2_2), dim=1)) + F.interpolate(_c3, scale_factor=2, mode="bilinear")
+        _c2   = self.diff_c2(torch.cat((_c2_1, _c2_2), dim=1)) #+ F.interpolate(_c3, scale_factor=2, mode="bilinear")
         p_c2  = self.make_pred_c2(_c2)
         outputs.append(p_c2)
         _c2_up= resize(_c2, size=c1_2.size()[2:], mode='bilinear', align_corners=False)
-        """
+        
 
         # Stage 1: x1/4 scale
         _c1_1 = self.linear_c1(c1_1).permute(0,2,1).reshape(n, -1, c1_1.shape[2], c1_1.shape[3])
         _c1_2 = self.linear_c1(c1_2).permute(0,2,1).reshape(n, -1, c1_2.shape[2], c1_2.shape[3])
-        _c1   = self.diff_c1(torch.cat((_c1_1, _c1_2), dim=1)) #+ F.interpolate(_c2, scale_factor=2, mode="bilinear")
+        _c1   = self.diff_c1(torch.cat((_c1_1, _c1_2), dim=1)) + F.interpolate(_c2, scale_factor=2, mode="bilinear")
         p_c1  = self.make_pred_c1(_c1)
         outputs.append(p_c1)
 
         #Linear Fusion of difference image from all scales
         #_c = self.linear_fuse(torch.cat((_c4_up, _c3_up, _c2_up, _c1), dim=1))
-        #_c = self.linear_fuse(_c1)
+        _c = self.linear_fuse(torch.cat((_c2_up, _c1), dim=1))
 
         # #Dropout
         # if dropout_ratio > 0:
@@ -2119,7 +2123,7 @@ class DecoderTransformer_v4(nn.Module):
         #     self.dropout = None
 
         #Upsampling x2 (x1/2 scale)
-        x = self.convd2x(_c1)
+        x = self.convd2x(_c)
         #Residual block
         x = self.dense_2x(x)
         #Upsampling x2 (x1 scale)
@@ -2222,13 +2226,13 @@ class LocalChangeFormer(nn.Module):
         self.attn_drop = 0.1
         self.drop_path_rate = 0.1 
 
-        self.Tenc_x2    = EncoderTransformer_v4(img_size=256, patch_size = 7, in_chans=input_nc, num_classes=output_nc, embed_dims=self.embed_dims,
+        self.Tenc_x2    = EncoderTransformer_v5(img_size=256, patch_size = 7, in_chans=input_nc, num_classes=output_nc, embed_dims=self.embed_dims,
                  num_heads = [1, 1, 1, 1], mlp_ratios=[1, 1, 1, 1], qkv_bias=True, qk_scale=None, drop_rate=self.drop_rate,
                  attn_drop_rate = self.attn_drop, drop_path_rate=self.drop_path_rate, norm_layer=partial(nn.LayerNorm, eps=1e-6),
                  depths=self.depths, sr_ratios=[2, 2, 2, 1])
         
         #Transformer Decoder
-        self.TDec_x2   = DecoderTransformer_v3(input_transform='multiple_select', in_index=[0, 1, 2, 3], align_corners=False, 
+        self.TDec_x2   = DecoderTransformer_v4(input_transform='multiple_select', in_index=[0, 1], align_corners=False, 
                     in_channels = self.embed_dims, embedding_dim= self.embedding_dim, output_nc=output_nc, 
                     decoder_softmax = decoder_softmax, feature_strides=[2, 4, 8, 16])
 
