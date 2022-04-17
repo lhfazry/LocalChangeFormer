@@ -1966,7 +1966,7 @@ class DecoderTransformer_v4(nn.Module):
 
         #Linear Fusion of difference image from all scales
         #_c = self.linear_fuse(torch.cat((_c4_up, _c3_up, _c2_up, _c1), dim=1))
-        _c = self.linear_fuse(_c1)
+        #_c = self.linear_fuse(_c1)
 
         # #Dropout
         # if dropout_ratio > 0:
@@ -1975,7 +1975,7 @@ class DecoderTransformer_v4(nn.Module):
         #     self.dropout = None
 
         #Upsampling x2 (x1/2 scale)
-        x = self.convd2x(_c)
+        x = self.convd2x(_c1)
         #Residual block
         x = self.dense_2x(x)
         #Upsampling x2 (x1 scale)
